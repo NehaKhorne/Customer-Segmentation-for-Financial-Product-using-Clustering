@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clustering Overview</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2 {
+            text-align: center;
+            font-weight: 600;
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin: 40px 0 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 35px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            animation: fadeIn 1s forwards;
+        }
+
+        /* Cluster Cards */
+        .cluster-card {
+            flex: 1;
+            max-width: 400px;
+            padding: 35px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.4s, box-shadow 0.4s;
+            text-align: center;
+            color: #2c3e50;
+            cursor: pointer;
+            border: 1px solid #e0e0e0;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        .cluster-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .cluster-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #2980b9;
+        }
+
+        .cluster-card p {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            color: #555;
+        }
+
+        .high { border-left: 8px solid #e74c3c; }
+        .medium { border-left: 8px solid #f39c12; }
+        .low { border-left: 8px solid #27ae60; }
+
+        /* Modal Styling */
+        #overlay, #details-modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+        }
+
+        #overlay {
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        #details-modal {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            color: #2c3e50;
+            padding: 60px;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: scaleIn 0.6s ease;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 14px 20px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #2980b9;
+            color: #fff;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 5px;
+            border-radius: 10px;
+        }
+
+        .btn:hover {
+            background-color: #3e8e41;
+        }
+
+        /* Buttons and Links */
+        .btn-primary {
+            display: block;
+            width: 220px;
+            margin: 20px auto;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: 0.3s;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+
+        /* Chart Styling */
+        .chart-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: transform 0.4s;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-10px);
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Clustering Overview</h1>
+<a class="btn btn-primary" href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+
+<!-- Cluster Cards -->
+<div class="container">
+    {% for cluster in clusters %}
+    <div class="cluster-card {{ cluster.name.lower() }}" onclick="fetchClusterDetails('{{ cluster.name }}')">
+        <h3>{{ cluster.name }}</h3>
+        <p>Customers: {{ cluster.num_customers }}</p>
+        <p>Avg Portfolio: ₹{{ cluster.avg_portfolio_value }}</p>
+        <p>Total Value: ₹{{ cluster.total_portfolio_value }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal -->
+<div id="overlay"></div>
+<div id="details-modal">
+    <h2>Cluster Details</h2>
+    <div id="modal-content"></div>
+    <button class="btn" onclick="closeModal()">Close</button>
+</div>
+
+<!-- Charts -->
+<div class="chart-container">
+    <canvas id="pieChart"></canvas>
+</div>
+
+<div class="chart-container">
+    <canvas id="flowChart"></canvas>
+</div>
+
+<script>
+    // Dummy data - Replace with dynamic data from your Flask backend
+    const labels = ['High Risk', 'Medium Risk', 'Low Risk'];
+    const numCustomers = [150, 320, 210];  
+    const totalPortfolio = [45000000, 62000000, 39000000];
+
+    // Render Pie Chart
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total Portfolio Value',
+                data: totalPortfolio,
+                backgroundColor: ['#e74c3c', '#f39c12', '#27ae60'],
+                hoverOffset: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Portfolio Value by Cluster' }
+            }
+        }
+    });
+
+    // Render Bar Chart
+    const barCtx = document.getElementById('flowChart').getContext('2d');
+    new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Number of Customers',
+                data: numCustomers,
+                backgroundColor: '#3498db',
+                borderColor: '#2980b9',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Fetch Cluster Details
+    function fetchClusterDetails(riskLevel) {
+        fetch(`/get-cluster-details/${riskLevel}`)
+            .then(res => res.json())
+            .then(data => {
+                let content = `<table><tr><th>Name</th><th>Live Price</th><th>Portfolio Value</th></tr>`;
+                data.forEach(customer => {
+                    content += `<tr>
+                        <td>${customer.name}</td>
+                        <td>₹${customer.current_price.toFixed(2)}</td>
+                        <td>₹${customer.portfolio_value.toFixed(2)}</td>
+                    </tr>`;
+                });
+                content += `</table>`;
+                document.getElementById('modal-content').innerHTML = content;
+                document.getElementById('overlay').style.display = 'block';
+                document.getElementById('details-modal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error loading cluster data:', error);
+            });
+    }
+
+    // Close Modal
+    function closeModal() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('details-modal').style.display = 'none';
+    }
+</script>
+</body>
+</html>

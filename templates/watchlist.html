@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIP Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        button {
+            transition: 0.3s;
+        }
+        button:hover {
+            transform: translateY(-3px);
+        }
+        table {
+            margin-top: 20px;
+        }
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto;
+        }
+        /* Buttons and Links */
+        .btn1 {
+            display: block;
+            width: 220px;
+            margin: 20px auto;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: 0.3s;
+            text-decoration:none;
+            text-align:center;
+        }
+
+        .btn1:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="mb-4">💰 SIP Calculator with Categories</h1>
+    <a class="btn1" href="{{ url_for('dashboard') }}"> <b> Back to Dashboard </b></a>
+    <br>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100" onclick="setCategory('large')">Large-Cap (12%)</button>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-warning w-100" onclick="setCategory('mid')">Mid-Cap (15%)</button>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-danger w-100" onclick="setCategory('small')">Small-Cap (18%)</button>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-4">
+        <div class="col-md-6">
+            <label for="monthly_investment" class="form-label">Monthly Investment (₹):</label>
+            <input type="number" id="monthly_investment" class="form-control" min="1000" step="1000" value="5000">
+        </div>
+
+        <div class="col-md-6">
+            <label for="rate_slider" class="form-label">Interest Rate (%):</label>
+            <input type="range" id="rate_slider" class="form-range" min="1" max="25" step="0.1" value="12" oninput="updateRateValue()">
+            <span id="rate_value" class="text-primary">12%</span>
+        </div>
+
+        <div class="col-md-6">
+            <label for="time_period" class="form-label">Time Period (Years):</label>
+            <input type="number" id="time_period" class="form-control" min="1" max="30" value="10">
+        </div>
+
+        <div class="col-md-6">
+            <label for="start_date" class="form-label">Start Date:</label>
+            <input type="date" id="start_date" class="form-control">
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <button class="btn btn-success px-5" onclick="calculateSIP()">Calculate</button>
+    </div>
+
+    <div class="mt-5">
+        <h2>Results</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <p>Invested Amount: <span id="invested-amount" class="fw-bold">-</span></p>
+            </div>
+            <div class="col-md-3">
+                <p>Estimated Returns: <span id="estimated-returns" class="fw-bold">-</span></p>
+            </div>
+            <div class="col-md-3">
+                <p>Total Value: <span id="total-value" class="fw-bold">-</span></p>
+            </div>
+            <div class="col-md-3">
+                <p>Maturity Date: <span id="maturity-date" class="fw-bold">-</span></p>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Year</th>
+                <th>Invested Amount</th>
+                <th>Returns</th>
+                <th>Total Value</th>
+            </tr>
+        </thead>
+        <tbody id="breakdown-table-body"></tbody>
+    </table>
+
+    <canvas id="growthChart" class="mt-4" width="600" height="400"></canvas>
+</div>
+
+<script>
+    let categoryRate = 12;
+
+    function setCategory(type) {
+        if (type === 'large') categoryRate = 12;
+        else if (type === 'mid') categoryRate = 15;
+        else if (type === 'small') categoryRate = 18;
+
+        document.getElementById('rate_slider').value = categoryRate;
+        updateRateValue();
+    }
+
+    function updateRateValue() {
+        const rate = document.getElementById('rate_slider').value;
+        document.getElementById('rate_value').textContent = `${rate}%`;
+    }
+
+    function calculateSIP() {
+        const monthlyInvestment = parseFloat(document.getElementById('monthly_investment').value);
+        const interestRate = parseFloat(document.getElementById('rate_slider').value) / 100 / 12;
+        const years = parseInt(document.getElementById('time_period').value);
+        const startDate = new Date(document.getElementById('start_date').value);
+
+        let investedAmount = 0, totalValue = 0;
+        let breakdown = [];
+
+        for (let i = 1; i <= years * 12; i++) {
+            investedAmount += monthlyInvestment;
+            totalValue = (totalValue + monthlyInvestment) * (1 + interestRate);
+
+            if (i % 12 === 0) {
+                breakdown.push({
+                    year: Math.floor(i / 12),
+                    invested: investedAmount.toFixed(2),
+                    returns: (totalValue - investedAmount).toFixed(2),
+                    total: totalValue.toFixed(2)
+                });
+            }
+        }
+
+        document.getElementById('invested-amount').textContent = `₹${investedAmount.toFixed(2)}`;
+        document.getElementById('estimated-returns').textContent = `₹${(totalValue - investedAmount).toFixed(2)}`;
+        document.getElementById('total-value').textContent = `₹${totalValue.toFixed(2)}`;
+
+        startDate.setFullYear(startDate.getFullYear() + years);
+        document.getElementById('maturity-date').textContent = startDate.toDateString();
+
+        updateBreakdownTable(breakdown);
+        renderChart(breakdown);
+    }
+
+    function updateBreakdownTable(breakdown) {
+        const tbody = document.getElementById('breakdown-table-body');
+        tbody.innerHTML = '';
+
+        breakdown.forEach(item => {
+            const row = `<tr>
+                            <td>${item.year}</td>
+                            <td>₹${item.invested}</td>
+                            <td>₹${item.returns}</td>
+                            <td>₹${item.total}</td>
+                         </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function renderChart(breakdown) {
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: breakdown.map(item => `Year ${item.year}`),
+                datasets: [{
+                    label: 'Total Value',
+                    data: breakdown.map(item => item.total),
+                    borderColor: '#007bff',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

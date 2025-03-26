@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #f4f4f4, #e0e0e0);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 95%;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #0056b3;
+        }
+
+        h1 {
+            font-size: 42px;
+            margin-bottom: 40px;
+            color: #004085;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: color 0.5s;
+        }
+
+        h1:hover {
+            color: #ff5733;  /* Transition color on hover */
+        }
+
+        h2 {
+            font-size: 32px;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 18px;
+            color: #555;
+        }
+
+        /* Customer Box */
+        .customer {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin: 50px 0;
+            transition: transform 0.5s, box-shadow 0.5s, background 0.5s;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .customer:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+        }
+
+        .customer p {
+            margin: 12px 0;
+            font-size: 20px;
+        }
+
+        /* Risk Level Badges */
+        .badge {
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 8px 14px;
+            border-radius: 20px;
+            color: #fff;
+            margin-left: 10px;
+            transition: transform 0.3s, background 0.5s;
+            animation: pulse 1.5s infinite;
+        }
+        /* Dashboard Button */
+        /* Buttons and Links */
+        .btn-primary {
+            display: block;
+            width: 220px;
+            margin: 20px auto;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: 0.3s;
+            text-decoration:none;
+            text-align:center;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .badge:hover {
+            transform: scale(1.1);
+        }
+
+        .low-risk {
+            background: #28a745;  /* Green */
+            box-shadow: 0 0 12px #28a745;
+        }
+
+        .medium-risk {
+            background: #ffc107;  /* Yellow */
+            color: #333;
+            box-shadow: 0 0 12px #ffc107;
+        }
+
+        .high-risk {
+            background: #dc3545;  /* Red */
+            box-shadow: 0 0 12px #dc3545;
+        }
+
+        /* Recommendation Cards */
+        .recommendation {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 25px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #f9f9f9, #f1f1f1);
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 30px;
+            width: calc(25% - 30px);
+            transition: transform 0.4s, box-shadow 0.4s, background 0.4s;
+            cursor: pointer;
+            animation: slideIn 0.8s ease-in-out;
+        }
+
+        .card:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+            background: #f4f4f4;
+        }
+
+        .card h3 {
+            font-size: 26px;
+            color: #333;
+        }
+
+        .card p {
+            margin: 12px 0;
+            font-size: 18px;
+        }
+
+        .price {
+            font-size: 22px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .change {
+            font-size: 20px;
+            font-weight: bold;
+            transition: color 0.4s, transform 0.4s;
+        }
+
+        .change:hover {
+            transform: scale(1.1);
+        }
+
+        .positive {
+            color: green;
+        }
+
+        .negative {
+            color: red;
+        }
+
+        .neutral {
+            color: #ffc107;
+        }
+
+        .reason {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            background: #007bff;
+            padding: 12px;
+            border-radius: 8px;
+            display: inline-block;
+            transition: background 0.4s, transform 0.4s;
+        }
+
+        .reason:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 1024px) {
+            .card {
+                width: calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                width: 100%;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Personalized Stock Recommendations</h1>
+
+    <a class="btn btn-primary mb-3" href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    <br>
+    
+    {% for customer in recommendations %}
+    <div class="customer">
+        <h2>{{ customer.customer.name }}</h2>
+        <p><strong>Email:</strong> {{ customer.customer.email }}</p>
+        <p><strong>Annual Income:</strong> ₹{{ customer.customer.annual_income }}</p>
+        <p>
+            <strong>Risk Level:</strong> 
+            <span class="badge {% if customer.customer.investment_risk == 'Low' %}low-risk
+                               {% elif customer.customer.investment_risk == 'Medium' %}medium-risk
+                               {% else %}high-risk{% endif %}">
+                {{ customer.customer.investment_risk }}
+            </span>
+        </p>
+        <p><strong>Preferred Sector:</strong> {{ customer.customer.preferred_sector }}</p>
+
+        <div class="recommendation">
+            {% for stock in customer.stocks %}
+            <div class="card">
+                <h3>{{ stock.name }}</h3>
+                <p>Sector: {{ stock.sector }}</p>
+                <p class="price">Price: ₹{{ stock.price }}</p>
+                <p class="reason">Reason: {{ stock.reason }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+</body>
+</html>
