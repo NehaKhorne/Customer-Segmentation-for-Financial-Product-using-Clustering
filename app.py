@@ -1,3 +1,5 @@
+import eventlet
+eventlet.monkey_patch()
 import csv
 from flask import Flask, render_template, redirect, url_for, request, jsonify
 from flask_socketio import SocketIO
@@ -474,3 +476,4 @@ if __name__ == '__main__':
     price_thread.start()
 
     socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=10000, allow_unsafe_werkzeug=True)
