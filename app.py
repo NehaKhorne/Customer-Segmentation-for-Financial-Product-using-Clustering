@@ -475,5 +475,6 @@ if __name__ == '__main__':
     price_thread = threading.Thread(target=fetch_live_prices, daemon=True)
     price_thread.start()
 
-    socketio.run(app, debug=True)
-    socketio.run(app, host='0.0.0.0', port=10000, allow_unsafe_werkzeug=True)
+    # Use only one socketio.run()
+    socketio.run(app, host='0.0.0.0', port=10000, allow_unsafe_werkzeug=True, debug=True)
+
