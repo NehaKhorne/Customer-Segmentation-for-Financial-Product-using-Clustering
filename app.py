@@ -18,7 +18,7 @@ import random
 # ✅ Flask setup
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # ✅ MongoDB setup
 client = MongoClient("mongodb://localhost:27017/stock_db")
