@@ -3,6 +3,96 @@ This project focuses on customer segmentation in the stock market by clustering 
 
 LINK:- https://customer-segmentation-for-financial.onrender.com/home
 
+---------------------------------------------------------------------------------------------------------------------
+
+🎯 Objectives
+Customer Segmentation:
+  Use K-means and DBSCAN clustering algorithms to segment customers based on their investment behavior.
+  Group customers by annual income, investment risk, and preferred sectors.
+
+Real-time Portfolio Management:
+  Allow users to add and manage their stock portfolios.
+  Display live stock prices and track profit/loss dynamically.
+  Provide real-time portfolio value updates using WebSockets.
+
+Stock Recommendations:
+  Recommend top 4-5 Indian stocks based on:
+  The user’s portfolio value.
+  Stocks they have already invested in.
+  Clustering insights to offer personalized suggestions.
+
+Interactive Data Visualization:
+  Display portfolio performance trends using interactive charts.
+  Visualize clustering results with dynamic graphs.
+  Real-time stock price updates and portfolio tracking.
+
+---------------------------------------------------------------------------------------------------------------------
+
+🚀 Key Features
+📊 1. *Portfolio Management*
+  Add stocks to the portfolio by entering:
+    Stock symbol, quantity, and purchase price.
+  Display:
+    The number of owned stocks.
+    The current portfolio value.
+    Profit/Loss calculations in real-time.
+    Real-time stock price updates using WebSockets.
+
+🔥 2. *Real-time Stock Data*
+Live stock prices fetched using yfinance.
+Automatic portfolio value updates.
+Display of current stock prices and total investment value.
+
+📈 3. *Clustering & Segmentation*
+K-means and DBSCAN algorithms to segment customers.
+Clustering based on:
+  Annual income
+  Investment risk
+  Preferred sectors
+  Display clusters in interactive visualizations.
+
+💡 4. *Stock Recommendations*
+Recommend top 4-5 Indian stocks based on:
+  Portfolio value.
+  Stocks already owned.
+  Clustering analysis insights.
+  Real-time updates to offer personalized recommendations.
+
+📊 5. *Data Visualization*
+Interactive charts to display portfolio value trends.
+Clustering visualizations showing grouped customer segments.
+Real-time updates using Chart.js and Plotly.
+
+🌐 6. *Responsive Frontend*
+Modern UI with Flask templates (Jinja2) and Bootstrap.
+Mobile-friendly and responsive design.
+User-friendly navigation and dynamic content rendering.
+
+---------------------------------------------------------------------------------------------------------------------
+
+🔥 Technology Stack
+  💻 Backend
+    Python (Flask)
+    MongoDB (NoSQL Database)
+    Flask-SocketIO (WebSockets)
+    Gunicorn + Eventlet (Production server)
+    Threading for concurrent data fetching
+
+  🌐 Frontend
+    HTML5, CSS3, JavaScript
+    Bootstrap (for styling)
+    Chart.js / Plotly (for visualizations)
+
+  📊 Data Science Libraries
+    Pandas, NumPy (Data manipulation)
+    Scikit-learn (Clustering models)
+    yfinance (Real-time stock data fetching)
+    Matplotlib (Data visualization)
+
+---------------------------------------------------------------------------------------------------------------------
+
+*SCREENSHOT*
+
 *Home Page* :-
 ![image](https://github.com/user-attachments/assets/c74cfdf8-d9aa-48be-b65f-347589056ade)
 
